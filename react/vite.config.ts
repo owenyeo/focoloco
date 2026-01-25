@@ -9,13 +9,22 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       input: {
-        popup: resolve(__dirname, "src/popup/index.html")
+        popup: resolve(__dirname, "src/popup/index.html"),
+        background: resolve(__dirname, "src/background/service_worker.ts"),
+        content: resolve(__dirname, "src/content/content.ts")
       },
       output: {
-        entryFileNames: () => {
-          // Keep predictable names for background/content if we add them as entries later
+        entryFileNames: (chunkInfo) => {
+          if (chunkInfo.name === "background") {
+            return "background/service_worker.js";
+          }
+          if (chunkInfo.name === "content") {
+            return "content/content.js";
+          }
           return "assets/[name]-[hash].js";
-        }
+        },
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash][extname]"
       }
     }
   }

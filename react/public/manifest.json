@@ -5,9 +5,9 @@
   "description": "Chaotic focus sprints + analytics.",
   "action": {
     "default_title": "Focoroco",
-    "default_popup": "src/popup/index.html"
+    "default_popup": "popup/index.html"
   },
-  "permissions": ["storage", "tabs", "alarms"],
+  "permissions": ["storage", "tabs", "alarms", "notifications"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "background/service_worker.js",

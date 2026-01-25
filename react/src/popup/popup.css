@@ -1,0 +1,203 @@
+:root {
+  color-scheme: light;
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+#root {
+  width: 360px;
+}
+
+.popup {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+}
+
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.subtitle {
+  margin: 4px 0 0;
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.card {
+  background: #1e293b;
+  border-radius: 16px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.4);
+}
+
+.timer {
+  gap: 12px;
+}
+
+.label {
+  margin: 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #94a3b8;
+}
+
+.hint {
+  margin: 0;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.field {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  color: #cbd5f5;
+}
+
+input {
+  border-radius: 999px;
+  border: 1px solid #334155;
+  padding: 8px 10px;
+  background: #0f172a;
+  color: #f8fafc;
+}
+
+button {
+  border: none;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #334155;
+  color: #f8fafc;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button.primary {
+  background: linear-gradient(135deg, #38bdf8, #22c55e);
+  color: #0f172a;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-header h3 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.count {
+  background: #0f172a;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.blocked-list {
+  display: grid;
+  gap: 8px;
+}
+
+.blocked-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  padding: 6px 10px;
+  border-radius: 12px;
+}
+
+.blocked-form {
+  display: flex;
+  gap: 8px;
+}
+
+.blocked-form input {
+  flex: 1;
+}
+
+.usage-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.usage-list li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.violations {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.violation-count {
+  font-size: 24px;
+  font-weight: 700;
+  color: #f97316;
+}
+
+.pet {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.pet-face {
+  display: flex;
+  gap: 6px;
+}
+
+.pet-face span {
+  width: 8px;
+  height: 8px;
+  background: #0f172a;
+  border-radius: 999px;
+}
+
+.pet-mouth {
+  width: 24px;
+  height: 8px;
+  background: #0f172a;
+  border-radius: 999px;
+  margin-top: 6px;
+}
+
+.pet-idle {
+  background: linear-gradient(135deg, #facc15, #f472b6);
+}
+
+.pet-focused {
+  background: linear-gradient(135deg, #38bdf8, #22c55e);
+}
+
+.pet-gremlin {
+  background: linear-gradient(135deg, #fb7185, #f97316);
+}
