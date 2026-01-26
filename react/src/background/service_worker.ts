@@ -1,4 +1,4 @@
-import {
+import type {
   ContentToBackgroundMessage,
   FocusState,
   PopupToBackgroundMessage,
@@ -58,15 +58,7 @@ const extractHostname = (url?: string | null): string | null => {
 };
 
 const loadState = async (): Promise<StorageSchema> => {
-  const data = await chrome.storage.local.get(defaultStorage);
-  return {
-    blockedDomains: data.blockedDomains ?? [],
-    focus: data.focus ?? defaultFocusState,
-    usageByDate: data.usageByDate ?? {},
-    violationsByDate: data.violationsByDate ?? {},
-    snoozedUntilByDomain: data.snoozedUntilByDomain ?? {},
-    tracking: data.tracking ?? defaultTrackingState
-  };
+  return (await chrome.storage.local.get(defaultStorage)) as StorageSchema;
 };
 
 const savePartialState = async (
