@@ -1,12 +1,12 @@
 :root {
   color-scheme: light;
-  font-family: "Inter", system-ui, sans-serif;
+  font-family: "Trebuchet MS", Verdana, Arial, sans-serif;
 }
 
 body {
   margin: 0;
-  background: #0f172a;
-  color: #f8fafc;
+  background: #f9f5ef;
+  color: #1c1b1a;
 }
 
 #root {
@@ -32,17 +32,18 @@ h1 {
 
 .subtitle {
   margin: 4px 0 0;
-  color: #94a3b8;
+  color: #4b4a48;
   font-size: 12px;
 }
 
 .card {
-  background: #1e293b;
+  background: #f9f5ef;
   border-radius: 16px;
   padding: 14px;
   display: grid;
   gap: 10px;
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.4);
+  border: 3px solid #1c1b1a;
+  box-shadow: 8px 8px 0 #1c1b1a;
 }
 
 .timer {
@@ -54,43 +55,43 @@ h1 {
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #94a3b8;
+  color: #4b4a48;
 }
 
 .hint {
   margin: 0;
   font-size: 12px;
-  color: #94a3b8;
+  color: #4b4a48;
 }
 
 .field {
   display: grid;
   gap: 6px;
   font-size: 12px;
-  color: #cbd5f5;
+  color: #1c1b1a;
 }
 
 input {
   border-radius: 999px;
-  border: 1px solid #334155;
+  border: 2px solid #1c1b1a;
   padding: 8px 10px;
-  background: #0f172a;
-  color: #f8fafc;
+  background: #ffffff;
+  color: #1c1b1a;
 }
 
 button {
-  border: none;
+  border: 2px solid #1c1b1a;
   border-radius: 999px;
   padding: 8px 12px;
-  background: #334155;
-  color: #f8fafc;
+  background: #ffffff;
+  color: #1c1b1a;
   cursor: pointer;
   font-weight: 600;
 }
 
 button.primary {
-  background: linear-gradient(135deg, #38bdf8, #22c55e);
-  color: #0f172a;
+  background: #ffd3d3;
+  color: #1c1b1a;
 }
 
 .section-header {
@@ -105,7 +106,8 @@ button.primary {
 }
 
 .count {
-  background: #0f172a;
+  background: #ffffff;
+  border: 2px solid #1c1b1a;
   padding: 2px 8px;
   border-radius: 999px;
   font-size: 12px;
@@ -121,7 +123,8 @@ button.primary {
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  background: #0f172a;
+  background: #ffffff;
+  border: 2px solid #1c1b1a;
   padding: 6px 10px;
   border-radius: 12px;
 }
@@ -158,7 +161,7 @@ button.primary {
 .violation-count {
   font-size: 24px;
   font-weight: 700;
-  color: #f97316;
+  color: #1c1b1a;
 }
 
 .pet {
@@ -178,14 +181,14 @@ button.primary {
 .pet-face span {
   width: 8px;
   height: 8px;
-  background: #0f172a;
+  background: #1c1b1a;
   border-radius: 999px;
 }
 
 .pet-mouth {
   width: 24px;
   height: 8px;
-  background: #0f172a;
+  background: #1c1b1a;
   border-radius: 999px;
   margin-top: 6px;
 }

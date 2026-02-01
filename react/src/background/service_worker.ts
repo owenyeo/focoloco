@@ -9,9 +9,11 @@ import type {
   ViolationsByDate
 } from "../shared/types";
 
+// Alarm names for usage tracking and focus session end.
 const TRACKING_ALARM = "tracking-tick";
 const FOCUS_END_ALARM = "focus-end";
 
+// Default focus state stored in chrome.storage.
 const defaultFocusState: FocusState = {
   isActive: false,
   endsAt: null,
@@ -20,6 +22,7 @@ const defaultFocusState: FocusState = {
   penaltyMinutes: 0
 };
 
+// Default active-tab tracking state.
 const defaultTrackingState: TrackingState = {
   activeHostname: null,
   activeTabId: null,
@@ -27,6 +30,7 @@ const defaultTrackingState: TrackingState = {
   lastStart: null
 };
 
+// Base storage payload used for initialization/merging.
 const defaultStorage: StorageSchema = {
   blockedDomains: [],
   focus: defaultFocusState,
@@ -36,9 +40,11 @@ const defaultStorage: StorageSchema = {
   tracking: defaultTrackingState
 };
 
+// Date key used in usage/violations maps: "YYYY-MM-DD".
 const getTodayKey = (date = new Date()): string =>
   date.toISOString().slice(0, 10);
 
+// Guard for focus activity based on end timestamp.
 const isFocusActive = (focus: FocusState): boolean => {
   if (!focus.isActive || !focus.endsAt) {
     return false;
@@ -46,6 +52,7 @@ const isFocusActive = (focus: FocusState): boolean => {
   return Date.now() < focus.endsAt;
 };
 
+// Parse and return hostname from a URL string.
 const extractHostname = (url?: string | null): string | null => {
   if (!url) {
     return null;
@@ -57,16 +64,19 @@ const extractHostname = (url?: string | null): string | null => {
   }
 };
 
+// Read full state with defaults applied.
 const loadState = async (): Promise<StorageSchema> => {
   return (await chrome.storage.local.get(defaultStorage)) as StorageSchema;
 };
 
+// Write only the provided slice of state.
 const savePartialState = async (
   partial: Partial<StorageSchema>
 ): Promise<void> => {
   await chrome.storage.local.set(partial);
 };
 
+// Add time to a hostname's daily usage tally.
 const addUsageTime = async (
   usageByDate: UsageByDate,
   hostname: string,
@@ -84,6 +94,7 @@ const addUsageTime = async (
   };
 };
 
+// Increment today's focus-mode violation count.
 const addViolation = async (
   violationsByDate: ViolationsByDate
 ): Promise<ViolationsByDate> => {
@@ -95,6 +106,7 @@ const addViolation = async (
   };
 };
 
+// Build the subset shared with popup/content scripts.
 const buildStatePayload = (state: StorageSchema): StatePayload => ({
   blockedDomains: state.blockedDomains,
   focus: state.focus,
@@ -103,6 +115,7 @@ const buildStatePayload = (state: StorageSchema): StatePayload => ({
   snoozedUntilByDomain: state.snoozedUntilByDomain
 });
 
+// Push fresh state to popup + all http(s) tabs.
 const broadcastState = async (): Promise<void> => {
   const state = await loadState();
   const payload = buildStatePayload(state);
@@ -121,6 +134,7 @@ const broadcastState = async (): Promise<void> => {
   });
 };
 
+// Sync the focus-end alarm with the current focus state.
 const updateFocusAlarm = async (focus: FocusState): Promise<void> => {
   if (focus.endsAt && focus.isActive) {
     await chrome.alarms.create(FOCUS_END_ALARM, { when: focus.endsAt });
@@ -129,10 +143,12 @@ const updateFocusAlarm = async (focus: FocusState): Promise<void> => {
   }
 };
 
+// Ensure the usage tracking alarm fires every minute.
 const ensureTrackingAlarm = async (): Promise<void> => {
   await chrome.alarms.create(TRACKING_ALARM, { periodInMinutes: 1 });
 };
 
+// Persist elapsed time for the currently tracked hostname.
 const flushActiveTime = async (overrideHostname?: string | null) => {
   const state = await loadState();
   const tracking = state.tracking;
@@ -150,6 +166,7 @@ const flushActiveTime = async (overrideHostname?: string | null) => {
   await savePartialState({ usageByDate, tracking: updatedTracking });
 };
 
+// Track usage when the active tab or focused window changes.
 const handleActiveTabChange = async (tab?: chrome.tabs.Tab) => {
   const [activeTab] = tab
     ? [tab]
@@ -165,7 +182,11 @@ const handleActiveTabChange = async (tab?: chrome.tabs.Tab) => {
   const tabChanged = tracking.activeTabId !== nextTabId;
   const windowChanged = tracking.activeWindowId !== nextWindowId;
 
-  if (tracking.activeHostname && tracking.lastStart && (hostnameChanged || tabChanged || windowChanged)) {
+  if (
+    tracking.activeHostname &&
+    tracking.lastStart &&
+    (hostnameChanged || tabChanged || windowChanged)
+  ) {
     const now = Date.now();
     const deltaMs = now - tracking.lastStart;
     const usageByDate = await addUsageTime(
@@ -197,6 +218,7 @@ const handleActiveTabChange = async (tab?: chrome.tabs.Tab) => {
   });
 };
 
+// Start a new focus session and schedule its end alarm.
 const startFocusSession = async (durationMinutes: number) => {
   const now = Date.now();
   const endsAt = now + durationMinutes * 60 * 1000;
@@ -212,6 +234,7 @@ const startFocusSession = async (durationMinutes: number) => {
   await broadcastState();
 };
 
+// Stop focus mode and reset focus state.
 const stopFocusSession = async () => {
   const focus: FocusState = {
     ...defaultFocusState
@@ -221,6 +244,7 @@ const stopFocusSession = async () => {
   await broadcastState();
 };
 
+// Extend the focus session and track penalty minutes.
 const addPenaltyMinutes = async (minutes: number) => {
   const state = await loadState();
   if (!state.focus.isActive || !state.focus.endsAt) {
@@ -236,6 +260,7 @@ const addPenaltyMinutes = async (minutes: number) => {
   await broadcastState();
 };
 
+// Route popup/content messages to background actions.
 const handleMessage = async (
   message: PopupToBackgroundMessage | ContentToBackgroundMessage,
   sender: chrome.runtime.MessageSender
@@ -282,21 +307,25 @@ const handleMessage = async (
   }
 };
 
+// Listen for popup/content messages.
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   void handleMessage(message, sender).then(sendResponse);
   return true;
 });
 
+// Update tracking when the active tab changes.
 chrome.tabs.onActivated.addListener(async () => {
   await handleActiveTabChange();
 });
 
+// Update tracking when a tab finishes loading.
 chrome.tabs.onUpdated.addListener(async (_tabId, info, tab) => {
   if (info.status === "complete") {
     await handleActiveTabChange(tab);
   }
 });
 
+// Flush usage when focus is lost, otherwise track active tab.
 chrome.windows.onFocusChanged.addListener(async (windowId) => {
   if (windowId === chrome.windows.WINDOW_ID_NONE) {
     await flushActiveTime();
@@ -306,6 +335,7 @@ chrome.windows.onFocusChanged.addListener(async (windowId) => {
   await handleActiveTabChange();
 });
 
+// Handle periodic tracking ticks and focus-end alarm.
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name === TRACKING_ALARM) {
     await flushActiveTime();
@@ -325,12 +355,14 @@ chrome.alarms.onAlarm.addListener(async (alarm) => {
   }
 });
 
+// Initialize alarms when the extension is installed.
 chrome.runtime.onInstalled.addListener(async () => {
   await ensureTrackingAlarm();
   const state = await loadState();
   await updateFocusAlarm(state.focus);
 });
 
+// Recreate alarms on browser startup.
 chrome.runtime.onStartup.addListener(async () => {
   await ensureTrackingAlarm();
   const state = await loadState();

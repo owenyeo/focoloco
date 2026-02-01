@@ -6,6 +6,67 @@ import type {
 const OVERLAY_ID = "focoroco-overlay";
 const SNOOZE_SECONDS = 60;
 const PENALTY_MINUTES = 5;
+const OVERLAY_HTML = `
+  <div class="focoroco-card">
+    <div class="focoroco-title">Focus mode</div>
+    <div class="focoroco-body">
+      This site is blocked during your sprint.
+    </div>
+    <div class="focoroco-actions">
+      <button data-action="go-back">Go back</button>
+      <button data-action="insist">Snooze 1 min</button>
+      <button data-action="penalty">Take penalty</button>
+    </div>
+  </div>
+`;
+const OVERLAY_CSS = `
+  #${OVERLAY_ID} {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: rgba(10, 10, 10, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Trebuchet MS", Verdana, Arial, sans-serif;
+  }
+  #${OVERLAY_ID} .focoroco-card {
+    width: min(420px, 92vw);
+    background: #f9f5ef;
+    color: #1c1b1a;
+    border: 3px solid #1c1b1a;
+    box-shadow: 8px 8px 0 #1c1b1a;
+    padding: 20px;
+    text-align: center;
+  }
+  #${OVERLAY_ID} .focoroco-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  #${OVERLAY_ID} .focoroco-body {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  #${OVERLAY_ID} .focoroco-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+  #${OVERLAY_ID} button {
+    appearance: none;
+    border: 2px solid #1c1b1a;
+    background: #ffffff;
+    color: #1c1b1a;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+  #${OVERLAY_ID} button[data-action="penalty"] {
+    background: #ffd3d3;
+  }
+`;
 
 const getHostname = (): string | null => {
   try {
@@ -25,6 +86,7 @@ const isFocusActive = (payload: StatePayload): boolean => {
 
 const shouldShowOverlay = (payload: StatePayload): boolean => {
   const hostname = getHostname();
+  console.log("I SHOULD SHOW OVERLAY")
   if (!hostname) {
     return false;
   }
@@ -34,6 +96,7 @@ const shouldShowOverlay = (payload: StatePayload): boolean => {
   if (!payload.blockedDomains.includes(hostname)) {
     return false;
   }
+  console.log("POP UP");
   const snoozedUntil = payload.snoozedUntilByDomain[hostname] ?? 0;
   return Date.now() > snoozedUntil;
 };
@@ -50,10 +113,10 @@ const createOverlay = (_payload: StatePayload) => {
 
   const overlay = document.createElement("div");
   overlay.id = OVERLAY_ID;
-  overlay.innerHTML = `...`; // keep your HTML
+  overlay.innerHTML = OVERLAY_HTML;
 
   const style = document.createElement("style");
-  style.textContent = `...`; // keep your CSS
+  style.textContent = OVERLAY_CSS;
 
   overlay.appendChild(style);
   (document.body || document.documentElement).appendChild(overlay);
@@ -107,6 +170,7 @@ const createOverlay = (_payload: StatePayload) => {
 
 const applyState = (payload: StatePayload) => {
   if (shouldShowOverlay(payload)) {
+    console.log("TRY TO CREATE");
     createOverlay(payload);
   } else {
     removeOverlay();
