@@ -1,6 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import type { StatePayload } from "../shared/types";
 
+const normalizeHostname = (value: string): string => {
+  const trimmed = value.trim().toLowerCase().replace(/^\.+|\.+$/g, "");
+  return trimmed.startsWith("www.") ? trimmed.slice(4) : trimmed;
+};
+
 // Convert milliseconds into a "m:ss" display string.
 const formatTime = (ms: number): string => {
   const totalSeconds = Math.max(0, Math.floor(ms / 1000));
@@ -17,7 +22,10 @@ const normalizeDomain = (input: string): string | null => {
     return null;
   }
   try {
-    return new URL(trimmed.includes("://") ? trimmed : `https://${trimmed}`).hostname;
+    const hostname = new URL(
+      trimmed.includes("://") ? trimmed : `https://${trimmed}`
+    ).hostname;
+    return normalizeHostname(hostname);
   } catch {
     return null;
   }

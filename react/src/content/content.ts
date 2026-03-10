@@ -68,9 +68,33 @@ const OVERLAY_CSS = `
   }
 `;
 
+// Normalize a hostname for matching/storage.
+const normalizeHostname = (value: string): string => {
+  const trimmed = value.trim().toLowerCase().replace(/^\.+|\.+$/g, "");
+  return trimmed.startsWith("www.") ? trimmed.slice(4) : trimmed;
+};
+
+// True when `hostname` exactly matches or is a subdomain of `blockedDomain`.
+const hostnameMatchesBlockedDomain = (
+  hostname: string,
+  blockedDomain: string
+): boolean => {
+  const host = normalizeHostname(hostname);
+  const blocked = normalizeHostname(blockedDomain);
+  if (!host || !blocked) {
+    return false;
+  }
+  return host === blocked || host.endsWith(`.${blocked}`);
+};
+
+const isHostnameBlocked = (hostname: string, blockedDomains: string[]): boolean =>
+  blockedDomains.some((blockedDomain) =>
+    hostnameMatchesBlockedDomain(hostname, blockedDomain)
+  );
+
 const getHostname = (): string | null => {
   try {
-    return window.location.hostname;
+    return normalizeHostname(window.location.hostname);
   } catch {
     return null;
   }
@@ -86,17 +110,15 @@ const isFocusActive = (payload: StatePayload): boolean => {
 
 const shouldShowOverlay = (payload: StatePayload): boolean => {
   const hostname = getHostname();
-  console.log("I SHOULD SHOW OVERLAY")
   if (!hostname) {
     return false;
   }
   if (!isFocusActive(payload)) {
     return false;
   }
-  if (!payload.blockedDomains.includes(hostname)) {
+  if (!isHostnameBlocked(hostname, payload.blockedDomains)) {
     return false;
   }
-  console.log("POP UP");
   const snoozedUntil = payload.snoozedUntilByDomain[hostname] ?? 0;
   return Date.now() > snoozedUntil;
 };
@@ -167,10 +189,8 @@ const createOverlay = (_payload: StatePayload) => {
   });
 };
 
-
 const applyState = (payload: StatePayload) => {
   if (shouldShowOverlay(payload)) {
-    console.log("TRY TO CREATE");
     createOverlay(payload);
   } else {
     removeOverlay();

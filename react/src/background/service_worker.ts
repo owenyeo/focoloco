@@ -9,6 +9,30 @@ import type {
   ViolationsByDate
 } from "../shared/types";
 
+// Normalize a hostname for matching/storage.
+const normalizeHostname = (value: string): string => {
+  const trimmed = value.trim().toLowerCase().replace(/^\.+|\.+$/g, "");
+  return trimmed.startsWith("www.") ? trimmed.slice(4) : trimmed;
+};
+
+// True when `hostname` exactly matches or is a subdomain of `blockedDomain`.
+const hostnameMatchesBlockedDomain = (
+  hostname: string,
+  blockedDomain: string
+): boolean => {
+  const host = normalizeHostname(hostname);
+  const blocked = normalizeHostname(blockedDomain);
+  if (!host || !blocked) {
+    return false;
+  }
+  return host === blocked || host.endsWith(`.${blocked}`);
+};
+
+const isHostnameBlocked = (hostname: string, blockedDomains: string[]): boolean =>
+  blockedDomains.some((blockedDomain) =>
+    hostnameMatchesBlockedDomain(hostname, blockedDomain)
+  );
+
 // Alarm names for usage tracking and focus session end.
 const TRACKING_ALARM = "tracking-tick";
 const FOCUS_END_ALARM = "focus-end";
@@ -58,7 +82,7 @@ const extractHostname = (url?: string | null): string | null => {
     return null;
   }
   try {
-    return new URL(url).hostname;
+    return normalizeHostname(new URL(url).hostname);
   } catch {
     return null;
   }
@@ -204,7 +228,7 @@ const handleActiveTabChange = async (tab?: chrome.tabs.Tab) => {
   tracking.lastStart = nextHostname ? Date.now() : null;
 
   if (nextHostname && isFocusActive(state.focus)) {
-    const isBlocked = state.blockedDomains.includes(nextHostname);
+    const isBlocked = isHostnameBlocked(nextHostname, state.blockedDomains);
     const snoozedUntil = state.snoozedUntilByDomain[nextHostname] ?? 0;
     if (isBlocked && Date.now() > snoozedUntil && hostnameChanged) {
       state.violationsByDate = await addViolation(state.violationsByDate);
